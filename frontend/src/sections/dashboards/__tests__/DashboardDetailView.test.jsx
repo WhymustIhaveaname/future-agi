@@ -13,6 +13,7 @@ vi.mock("src/hooks/useDashboards", () => ({
     data: {
       id: "dash-1",
       name: "My Dash",
+      created_by: { email: "owner@test.com" },
       widgets: [{ id: "w-1", name: "Tokens", position: 0, width: 12 }],
     },
     isLoading: false,
@@ -38,6 +39,12 @@ vi.mock("../WidgetChart", () => ({
 
 vi.mock("src/components/snackbar", () => ({
   useSnackbar: () => ({ enqueueSnackbar: vi.fn() }),
+}));
+
+// Dashboard delete is gated on ownership (created_by.email === current user);
+// this suite exercises the owner path, so the auth user matches the mock owner.
+vi.mock("src/auth/hooks", () => ({
+  useAuthContext: () => ({ user: { email: "owner@test.com" } }),
 }));
 
 const openWidgetDeleteDialog = () => {
@@ -83,7 +90,9 @@ describe("DashboardDetailView — delete confirmation", () => {
   it("dashboard delete: deletes the dashboard by id, closing on settle", () => {
     render(<DashboardDetailView />);
     fireEvent.click(screen.getByRole("button", { name: /dashboard options/i }));
-    fireEvent.click(screen.getByRole("menuitem", { name: /delete dashboard/i }));
+    fireEvent.click(
+      screen.getByRole("menuitem", { name: /delete dashboard/i }),
+    );
     expect(
       screen.getByText(/Are you sure you want to delete "My Dash"/),
     ).toBeInTheDocument();
