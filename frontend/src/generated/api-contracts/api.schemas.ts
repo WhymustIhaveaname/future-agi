@@ -10264,38 +10264,53 @@ export interface EvalUsageChartPointApi {
   fail_count?: number;
 }
 
-export type EvalUsageFeedbackApiValue = { [key: string]: unknown };
-
-export interface EvalUsageFeedbackApi {
-  id: string;
-  value?: EvalUsageFeedbackApiValue;
-  explanation?: string;
-  action_type?: string;
-  created_at?: string;
-  user?: string;
+export interface EvalUsageNumberCellApi {
+  cell_value?: number;
 }
 
-export type EvalUsageLogItemApiDetail = { [key: string]: unknown };
-
-export interface EvalUsageLogItemApi {
-  id: string;
-  input: string;
-  result?: string;
-  score?: number;
-  reason?: string;
-  /** @minLength 1 */
-  status: string;
-  source?: string;
-  /** @minLength 1 */
-  created_at: string;
-  detail: EvalUsageLogItemApiDetail;
-  feedback?: EvalUsageFeedbackApi;
-  composite?: boolean;
-  aggregate_pass?: boolean;
+export interface EvalUsageStringCellApi {
+  cell_value?: string;
 }
 
-export interface EvalUsageLogsApi {
-  items: EvalUsageLogItemApi[];
+/**
+ * String or JSON object.
+ */
+export type EvalUsageVersionCellApiCellValue = string | { [key: string]: unknown };
+
+export interface EvalUsageVersionCellApi {
+  /** String or JSON object. */
+  cell_value?: EvalUsageVersionCellApiCellValue;
+}
+
+export type EvalUsageFeedbackCellApiCellValue = { [key: string]: unknown };
+
+export interface EvalUsageFeedbackCellApi {
+  cell_value?: EvalUsageFeedbackCellApiCellValue;
+}
+
+export type EvalUsageWarningsCellApiCellValueItem = { [key: string]: unknown };
+
+export interface EvalUsageWarningsCellApi {
+  cell_value?: EvalUsageWarningsCellApiCellValueItem[];
+}
+
+export interface EvalUsageTableRowApi {
+  /** @minLength 1 */
+  row_id: string;
+  score?: EvalUsageNumberCellApi;
+  result?: EvalUsageStringCellApi;
+  input?: EvalUsageStringCellApi;
+  reason?: EvalUsageStringCellApi;
+  source?: EvalUsageStringCellApi;
+  version?: EvalUsageVersionCellApi;
+  feedback?: EvalUsageFeedbackCellApi;
+  created_at?: EvalUsageStringCellApi;
+  status?: EvalUsageStringCellApi;
+  warnings?: EvalUsageWarningsCellApi;
+  [key: string]: unknown;
+ }
+
+export interface EvalUsagePaginationApi {
   total: number;
   page: number;
   page_size: number;
@@ -10306,7 +10321,8 @@ export interface EvalUsageStatsResponseResultApi {
   is_composite: boolean;
   stats: EvalUsageStatsApi;
   chart: EvalUsageChartPointApi[];
-  logs: EvalUsageLogsApi;
+  table: EvalUsageTableRowApi[];
+  logs: EvalUsagePaginationApi;
 }
 
 export interface EvalUsageStatsResponseApi {
@@ -11362,18 +11378,33 @@ export interface UpdateColumnConfigApi {
   source?: string;
 }
 
+export interface EvalColumnConfigItemApi {
+  /** @minLength 1 */
+  id: string;
+  /** @minLength 1 */
+  name: string;
+  is_visible: boolean;
+  /** @minLength 1 */
+  status: string;
+  /** @minLength 1 */
+  source_type: string;
+  is_frozen?: boolean;
+  /** @minLength 1 */
+  data_type?: string;
+  /** @minLength 1 */
+  origin_type?: string;
+  /** @minLength 1 */
+  output_type?: string;
+}
+
 export interface EvalApiLogTableMetadataApi {
   total_rows: number;
   total_pages: number;
 }
 
-export type EvalApiLogTableResponseResultApiTableItem = { [key: string]: unknown };
-
-export type EvalApiLogTableResponseResultApiColumnConfigItem = { [key: string]: unknown };
-
 export interface EvalApiLogTableResponseResultApi {
-  table: EvalApiLogTableResponseResultApiTableItem[];
-  column_config: EvalApiLogTableResponseResultApiColumnConfigItem[];
+  table: EvalUsageTableRowApi[];
+  column_config: EvalColumnConfigItemApi[];
   metadata?: EvalApiLogTableMetadataApi;
 }
 
@@ -24006,6 +24037,66 @@ export type ModelHubEvalGroupsList200 = {
   previous?: string;
   results: EvalGroupApi[];
 };
+
+export type ModelHubEvalTemplatesFeedbackListListParams = {
+/**
+ * @minimum 0
+ * @maximum 10000
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+page_size?: number;
+period?: ModelHubEvalTemplatesFeedbackListListPeriod;
+start_date?: string;
+end_date?: string;
+};
+
+export type ModelHubEvalTemplatesFeedbackListListPeriod = typeof ModelHubEvalTemplatesFeedbackListListPeriod[keyof typeof ModelHubEvalTemplatesFeedbackListListPeriod];
+
+
+export const ModelHubEvalTemplatesFeedbackListListPeriod = {
+  '30m': '30m',
+  '6h': '6h',
+  '1d': '1d',
+  '7d': '7d',
+  '30d': '30d',
+  '90d': '90d',
+  '180d': '180d',
+  '365d': '365d',
+} as const;
+
+export type ModelHubEvalTemplatesUsageListParams = {
+/**
+ * @minimum 0
+ * @maximum 10000
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+page_size?: number;
+period?: ModelHubEvalTemplatesUsageListPeriod;
+start_date?: string;
+end_date?: string;
+};
+
+export type ModelHubEvalTemplatesUsageListPeriod = typeof ModelHubEvalTemplatesUsageListPeriod[keyof typeof ModelHubEvalTemplatesUsageListPeriod];
+
+
+export const ModelHubEvalTemplatesUsageListPeriod = {
+  '30m': '30m',
+  '6h': '6h',
+  '1d': '1d',
+  '7d': '7d',
+  '30d': '30d',
+  '90d': '90d',
+  '180d': '180d',
+  '365d': '365d',
+} as const;
 
 export type ModelHubExperimentDetailListParams = {
 /**

@@ -22,6 +22,15 @@ class JsonValueField(serializers.JSONField):
 
     For fields with a known shape use a typed serializer or ``StringOrObjectField``
     for ``string | object`` unions.
+
+    NOTE on orval: drf-yasg merges ``swagger_schema_fields`` on top of the
+    JSONField base schema which always includes ``"type": "object"``.  The
+    ``x-json-value`` flag is understood by ``openapi-contract.js`` (runtime
+    validation), but orval's code-gen sees ``type: object`` and emits
+    ``z.object({}).passthrough()`` — which rejects scalar cell values. For
+    dynamic-column table rows with mixed-type cells, type the known columns
+    on a serializer and set ``Meta.swagger_schema_fields = {"additionalProperties": True}``
+    instead of using this field as the child of a ``DictField``.
     """
 
     class Meta:

@@ -32369,7 +32369,59 @@
                 "operationId": "model-hub_eval-templates_feedback-list_list",
                 "summary": "GET /model-hub/eval-templates/<id>/feedback-list/",
                 "description": "Paginated feedback list with user info.\nQuery params: page (0-based), page_size",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "default": 0,
+                        "maximum": 10000,
+                        "minimum": 0
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "default": 25,
+                        "maximum": 100,
+                        "minimum": 1
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "30m",
+                            "6h",
+                            "1d",
+                            "7d",
+                            "30d",
+                            "90d",
+                            "180d",
+                            "365d"
+                        ],
+                        "default": "30d"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "x-nullable": true
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "x-nullable": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -32416,7 +32468,9 @@
                 },
                 "tags": [
                     "model-hub"
-                ]
+                ],
+                "x-runtime-request-validation": true,
+                "x-runtime-response-validation": true
             },
             "parameters": [
                 {
@@ -32641,8 +32695,60 @@
             "get": {
                 "operationId": "model-hub_eval-templates_usage_list",
                 "summary": "GET /model-hub/eval-templates/<id>/usage/",
-                "description": "Returns usage stats, chart data, and paginated eval logs.\nQuery params: page (0-based), page_size, period (30m|6h|1d|7d|30d|90d|180d|365d)",
-                "parameters": [],
+                "description": "Returns usage stats, chart data, and paginated eval logs.\nQuery params: page (0-based), page_size, period (30m|6h|1d|7d|30d|90d|180d|365d).\n\nLogic lives in `model_hub.services.eval_usage_service`. The serializer\nat the boundary (`EvalUsageStatsResponseResultSerializer(instance=...).data`)\nis the response contract — drift would surface as a serializer error\nat this call site rather than be silently shipped.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "default": 0,
+                        "maximum": 10000,
+                        "minimum": 0
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "default": 25,
+                        "maximum": 100,
+                        "minimum": 1
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "30m",
+                            "6h",
+                            "1d",
+                            "7d",
+                            "30d",
+                            "90d",
+                            "180d",
+                            "365d"
+                        ],
+                        "default": "30d"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "x-nullable": true
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time",
+                        "x-nullable": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -32689,7 +32795,9 @@
                 },
                 "tags": [
                     "model-hub"
-                ]
+                ],
+                "x-runtime-request-validation": true,
+                "x-runtime-response-validation": true
             },
             "parameters": [
                 {
@@ -99379,120 +99487,112 @@
                 }
             }
         },
-        "EvalUsageFeedback": {
-            "required": [
-                "id"
-            ],
+        "EvalUsageNumberCell": {
             "type": "object",
             "properties": {
-                "id": {
-                    "title": "Id",
-                    "type": "string",
-                    "format": "uuid"
-                },
-                "value": {
-                    "title": "Value",
-                    "type": "object",
-                    "x-nullable": true
-                },
-                "explanation": {
-                    "title": "Explanation",
-                    "type": "string"
-                },
-                "action_type": {
-                    "title": "Action type",
-                    "type": "string"
-                },
-                "created_at": {
-                    "title": "Created at",
-                    "type": "string"
-                },
-                "user": {
-                    "title": "User",
-                    "type": "string"
-                }
-            },
-            "x-nullable": true
-        },
-        "EvalUsageLogItem": {
-            "required": [
-                "id",
-                "input",
-                "status",
-                "created_at",
-                "detail"
-            ],
-            "type": "object",
-            "properties": {
-                "id": {
-                    "title": "Id",
-                    "type": "string",
-                    "format": "uuid"
-                },
-                "input": {
-                    "title": "Input",
-                    "type": "string"
-                },
-                "result": {
-                    "title": "Result",
-                    "type": "string"
-                },
-                "score": {
-                    "title": "Score",
+                "cell_value": {
+                    "title": "Cell value",
                     "type": "number",
-                    "x-nullable": true
-                },
-                "reason": {
-                    "title": "Reason",
-                    "type": "string"
-                },
-                "status": {
-                    "title": "Status",
-                    "type": "string",
-                    "minLength": 1
-                },
-                "source": {
-                    "title": "Source",
-                    "type": "string"
-                },
-                "created_at": {
-                    "title": "Created at",
-                    "type": "string",
-                    "minLength": 1
-                },
-                "detail": {
-                    "title": "Detail",
-                    "type": "object"
-                },
-                "feedback": {
-                    "$ref": "#/definitions/EvalUsageFeedback"
-                },
-                "composite": {
-                    "title": "Composite",
-                    "type": "boolean"
-                },
-                "aggregate_pass": {
-                    "title": "Aggregate pass",
-                    "type": "boolean",
                     "x-nullable": true
                 }
             }
         },
-        "EvalUsageLogs": {
+        "EvalUsageStringCell": {
+            "type": "object",
+            "properties": {
+                "cell_value": {
+                    "title": "Cell value",
+                    "type": "string",
+                    "x-nullable": true
+                }
+            }
+        },
+        "EvalUsageVersionCell": {
+            "type": "object",
+            "properties": {
+                "cell_value": {
+                    "title": "Cell value",
+                    "type": "object",
+                    "x-nullable": true,
+                    "x-string-or-object": true,
+                    "description": "String or JSON object."
+                }
+            }
+        },
+        "EvalUsageFeedbackCell": {
+            "type": "object",
+            "properties": {
+                "cell_value": {
+                    "title": "Cell value",
+                    "type": "object",
+                    "x-nullable": true
+                }
+            }
+        },
+        "EvalUsageWarningsCell": {
+            "type": "object",
+            "properties": {
+                "cell_value": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    },
+                    "x-nullable": true
+                }
+            }
+        },
+        "EvalUsageTableRow": {
             "required": [
-                "items",
+                "row_id"
+            ],
+            "type": "object",
+            "properties": {
+                "row_id": {
+                    "title": "Row id",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "score": {
+                    "$ref": "#/definitions/EvalUsageNumberCell"
+                },
+                "result": {
+                    "$ref": "#/definitions/EvalUsageStringCell"
+                },
+                "input": {
+                    "$ref": "#/definitions/EvalUsageStringCell"
+                },
+                "reason": {
+                    "$ref": "#/definitions/EvalUsageStringCell"
+                },
+                "source": {
+                    "$ref": "#/definitions/EvalUsageStringCell"
+                },
+                "version": {
+                    "$ref": "#/definitions/EvalUsageVersionCell"
+                },
+                "feedback": {
+                    "$ref": "#/definitions/EvalUsageFeedbackCell"
+                },
+                "created_at": {
+                    "$ref": "#/definitions/EvalUsageStringCell"
+                },
+                "status": {
+                    "$ref": "#/definitions/EvalUsageStringCell"
+                },
+                "warnings": {
+                    "$ref": "#/definitions/EvalUsageWarningsCell"
+                }
+            },
+            "additionalProperties": true
+        },
+        "EvalUsagePagination": {
+            "required": [
                 "total",
                 "page",
                 "page_size"
             ],
             "type": "object",
             "properties": {
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/EvalUsageLogItem"
-                    }
-                },
                 "total": {
                     "title": "Total",
                     "type": "integer"
@@ -99513,6 +99613,7 @@
                 "is_composite",
                 "stats",
                 "chart",
+                "table",
                 "logs"
             ],
             "type": "object",
@@ -99535,8 +99636,14 @@
                         "$ref": "#/definitions/EvalUsageChartPoint"
                     }
                 },
+                "table": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/EvalUsageTableRow"
+                    }
+                },
                 "logs": {
-                    "$ref": "#/definitions/EvalUsageLogs"
+                    "$ref": "#/definitions/EvalUsagePagination"
                 }
             }
         },
@@ -102467,6 +102574,62 @@
                 }
             }
         },
+        "EvalColumnConfigItem": {
+            "required": [
+                "id",
+                "name",
+                "is_visible",
+                "status",
+                "source_type"
+            ],
+            "type": "object",
+            "properties": {
+                "id": {
+                    "title": "Id",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "name": {
+                    "title": "Name",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "is_visible": {
+                    "title": "Is visible",
+                    "type": "boolean"
+                },
+                "status": {
+                    "title": "Status",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "source_type": {
+                    "title": "Source type",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "is_frozen": {
+                    "title": "Is frozen",
+                    "type": "boolean",
+                    "x-nullable": true
+                },
+                "data_type": {
+                    "title": "Data type",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "origin_type": {
+                    "title": "Origin type",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "output_type": {
+                    "title": "Output type",
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
+        },
         "EvalApiLogTableMetadata": {
             "required": [
                 "total_rows",
@@ -102494,13 +102657,13 @@
                 "table": {
                     "type": "array",
                     "items": {
-                        "type": "object"
+                        "$ref": "#/definitions/EvalUsageTableRow"
                     }
                 },
                 "column_config": {
                     "type": "array",
                     "items": {
-                        "type": "object"
+                        "$ref": "#/definitions/EvalColumnConfigItem"
                     }
                 },
                 "metadata": {
